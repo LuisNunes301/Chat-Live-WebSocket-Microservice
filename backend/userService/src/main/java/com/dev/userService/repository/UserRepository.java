@@ -7,4 +7,5 @@ import com.dev.userService.models.User;
 import java.util.UUID;
 
 public interface UserRepository extends JpaRepository<User, UUID> {
+    User save(User user);
 }
