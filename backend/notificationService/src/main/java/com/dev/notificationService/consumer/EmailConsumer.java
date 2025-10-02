@@ -18,7 +18,7 @@ public class EmailConsumer {
         this.emailService = emailService;
     }
 
-    @RabbitListener(queues = "${broker.queue.email.name}")
+    @RabbitListener(queues = "${spring.rabbitmq.template.default-receive-queue}")
     public void listenEmailQueue(@Payload EmailRecordDto emailRecordDto) {
         var emailModel = new EmailModel();
         BeanUtils.copyProperties(emailRecordDto, emailModel);
