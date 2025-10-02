@@ -21,6 +21,12 @@ public class UserService {
 
     @Transactional
     public User save(User userModel) {
+        if (userRepository.existsByEmail(userModel.getEmail())) {
+            throw new IllegalArgumentException("Email já cadastrado");
+        }
+        if (userRepository.existsByName(userModel.getName())) {
+            throw new IllegalArgumentException("Username já cadastrado");
+        }
         userModel = userRepository.save(userModel);
         userProducer.publishMessageEmail(userModel);
         return userModel;

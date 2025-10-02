@@ -28,12 +28,17 @@ public class UserController {
     }
 
     @PostMapping("user")
-    public ResponseEntity<User> saveUser(@RequestBody @Valid UserRecordDto userRecordDto) {
-        var userModel = new User();
+    public ResponseEntity<?> saveUser(@RequestBody @Valid UserRecordDto userRecordDto) {
+        try {
+            var userModel = new User();
+            BeanUtils.copyProperties(userRecordDto, userModel);
+            userModel.setPassword(passwordEncoder.encode(userRecordDto.password()));
 
-        BeanUtils.copyProperties(userRecordDto, userModel);
-        userModel.setPassword(passwordEncoder.encode(userRecordDto.password()));
-        return ResponseEntity.status(HttpStatus.CREATED).body(userService.save(userModel));
+            User savedUser = userService.save(userModel);
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body("User could not be created: " + e.getMessage());
+        }
     }
-
 }

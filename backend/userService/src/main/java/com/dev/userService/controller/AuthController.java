@@ -45,7 +45,7 @@ public class AuthController {
 
     @PostMapping("/logout")
     public ResponseEntity<MessageResponse> logout(HttpServletResponse response) {
-        ResponseCookie cookie = buildJwtCookie("");
+        ResponseCookie cookie = buildJwtCookie(""); // limpa o cookie
         cookie = ResponseCookie.from("jwt", "")
                 .httpOnly(true)
                 .secure(false)
@@ -63,7 +63,7 @@ public class AuthController {
                 .httpOnly(true)
                 .secure(false)
                 .path("/")
-                .maxAge(24 * 60 * 60) /
+                .maxAge(24 * 60 * 60)
                 .sameSite("Strict")
                 .build();
     }
