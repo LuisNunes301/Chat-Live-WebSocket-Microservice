@@ -32,12 +32,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             FilterChain filterChain)
             throws ServletException, IOException {
 
-        // Lê o cookie JWT
+        String path = request.getRequestURI();
+        if (path.startsWith("/auth") || path.startsWith("/public")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String token = null;
         if (request.getCookies() != null) {
             for (Cookie cookie : request.getCookies()) {
                 if ("jwt".equals(cookie.getName())) {
                     token = cookie.getValue();
+                    break;
                 }
             }
         }
@@ -51,6 +57,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 SecurityContextHolder.getContext().setAuthentication(auth);
             } catch (Exception e) {
+                log.warn("Token inválido ou expirado: {}", e.getMessage());
                 SecurityContextHolder.clearContext();
             }
         }

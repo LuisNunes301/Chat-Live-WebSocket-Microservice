@@ -19,7 +19,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws-chat")
-                .setAllowedOriginPatterns("*") // em prod: colocar só o domínio do frontend
+                .setAllowedOriginPatterns("http://localhost:3000") // em prod: colocar só o domínio do frontend
                 .addInterceptors(authHandshakeInterceptor)
                 .withSockJS();
     }
