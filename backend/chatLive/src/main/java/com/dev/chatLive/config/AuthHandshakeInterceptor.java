@@ -1,5 +1,6 @@
 package com.dev.chatLive.config;
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.server.ServerHttpRequest;
@@ -26,24 +27,41 @@ public class AuthHandshakeInterceptor implements HandshakeInterceptor {
     @Override
     public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response,
             WebSocketHandler wsHandler, Map<String, Object> attributes) {
-        if (request instanceof ServletServerHttpRequest servletRequest) {
+
+        String token = null;
+
+        List<String> authHeaders = request.getHeaders().get("Authorization");
+        if (authHeaders != null && !authHeaders.isEmpty()) {
+            String header = authHeaders.get(0);
+            if (header.startsWith("Bearer ")) {
+                token = header.substring(7);
+            }
+        }
+
+        if (token == null && request instanceof ServletServerHttpRequest servletRequest) {
             HttpServletRequest httpReq = servletRequest.getServletRequest();
             Cookie[] cookies = httpReq.getCookies();
-
             if (cookies != null) {
                 for (Cookie cookie : cookies) {
                     if ("jwt".equals(cookie.getName())) {
-                        try {
-                            String username = jwtUtil.validateTokenAndGetUsername(cookie.getValue());
-                            attributes.put("username", username);
-                            return true;
-                        } catch (Exception e) {
-                            return false;
-                        }
+                        token = cookie.getValue();
+                        break;
                     }
                 }
             }
         }
+
+        if (token != null) {
+            try {
+                String username = jwtUtil.validateTokenAndGetUsername(token);
+                attributes.put("username", username);
+                System.out.println("✅ Handshake aprovado para usuário: " + username);
+                return true;
+            } catch (Exception e) {
+                System.out.println("❌ JWT inválido: " + e.getMessage());
+            }
+        }
+
         return false;
     }
 
